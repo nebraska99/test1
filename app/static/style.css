@@ -1,0 +1,79 @@
+:root {
+  --bg: #f5f7fb;
+  --box: #ffffff;
+  --line: #d8deea;
+  --text: #1a1f2b;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header, .upload-card, .table-card {
+  max-width: 1200px;
+  margin: 16px auto;
+  background: var(--box);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.grid-4 {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.box {
+  background: var(--box);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid var(--line);
+  padding: 8px;
+  text-align: left;
+}
+
+button {
+  background: #263b80;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.light {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 2px 8px;
+  color: #fff;
+  font-size: 12px;
+}
+
+.light.green { background: #2e8540; }
+.light.yellow { background: #ba8c1d; }
+.light.red { background: #b42318; }
+
+.hint {
+  font-size: 12px;
+  color: #4b5565;
+}
