@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TELAIO STRATEGIE - Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>TELAIO STRATEGIE</h1>
+    <p>Living dashboard V1 - CSV TradingView</p>
+  </header>
+
+  <section class="upload-card">
+    <h2>Upload CSV TradingView</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="files" accept=".csv" multiple required />
+      <button type="submit">Carica file</button>
+    </form>
+    <p class="hint">Puoi caricare uno o più file CSV. I file raw vengono sempre salvati.</p>
+  </section>
+
+  <main class="grid-4">
+    <article class="box">
+      <h3>1) Data Hub / Data Quality</h3>
+      <ul>
+        <li>Righe storico: {{ data_quality.total_rows if data_quality else 0 }}</li>
+        <li>Ticker unici: {{ data_quality.total_tickers if data_quality else 0 }}</li>
+        <li>Da: {{ data_quality.first_date if data_quality and data_quality.first_date else '-' }}</li>
+        <li>A: {{ data_quality.last_date if data_quality and data_quality.last_date else '-' }}</li>
+      </ul>
+      {% if latest_import %}
+        <p><strong>Ultimo import:</strong> {{ latest_import.filename }} ({{ latest_import.status }})</p>
+        <p>Totale: {{ latest_import.rows_total }} | Valide: {{ latest_import.rows_valid }} | New: {{ latest_import.rows_inserted }} | Update: {{ latest_import.rows_updated }}</p>
+      {% else %}
+        <p>Nessun import effettuato.</p>
+      {% endif %}
+    </article>
+
+    <article class="box">
+      <h3>2) Momentum Multi Asset</h3>
+      <p><strong>Ultimo run segnali:</strong> {{ latest_signal_run if latest_signal_run else 'mai eseguito' }}</p>
+      <p>Logica: momentum 3M, 6M, 12M, 12-1M + filtro absolute momentum.</p>
+    </article>
+
+    <article class="box">
+      <h3>3) Action Panel</h3>
+      <p>1. Carica CSV aggiornati</p>
+      <p>2. Controlla warning import</p>
+      <p>3. Verifica ranking e semaforo</p>
+    </article>
+
+    <article class="box">
+      <h3>4) AI Notes (placeholder)</h3>
+      <p>Spazio riservato a note automatiche future.</p>
+    </article>
+  </main>
+
+  <section class="table-card">
+    <h2>Storico import (ultimi 10)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Status</th>
+          <th>Totale</th>
+          <th>Valide</th>
+          <th>New</th>
+          <th>Update</th>
+          <th>Inizio</th>
+          <th>Fine</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in recent_imports %}
+        <tr>
+          <td>{{ row.filename if row.filename else '-' }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.rows_total }}</td>
+          <td>{{ row.rows_valid }}</td>
+          <td>{{ row.rows_inserted }}</td>
+          <td>{{ row.rows_updated }}</td>
+          <td>{{ row.started_at }}</td>
+          <td>{{ row.finished_at if row.finished_at else '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8">Nessun import presente.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="table-card">
+    <h2>Ranking strumenti (ultimo snapshot)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>As Of</th>
+          <th>Mom 3M</th>
+          <th>Mom 6M</th>
+          <th>Mom 12M</th>
+          <th>Mom 12-1M</th>
+          <th>Rank</th>
+          <th>Abs &gt; 0</th>
+          <th>Semaforo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rankings %}
+        <tr>
+          <td>{{ r.ticker }}</td>
+          <td>{{ r.as_of_date }}</td>
+          <td>{{ '%.2f%%'|format((r.mom_3m or 0) * 100) if r.mom_3m is not none else '-' }}</td>
+          <td>{{ '%.2f%%'|format((r.mom_6m or 0) * 100) if r.mom_6m is not none else '-' }}</td>
+          <td>{{ '%.2f%%'|format((r.mom_12m or 0) * 100) if r.mom_12m is not none else '-' }}</td>
+          <td>{{ '%.2f%%'|format((r.mom_12_1m or 0) * 100) if r.mom_12_1m is not none else '-' }}</td>
+          <td>{{ '%.4f'|format(r.rank_value) if r.rank_value is not none else '-' }}</td>
+          <td>{{ 'YES' if r.abs_mom_ok == 1 else 'NO' }}</td>
+          <td><span class="light {{ r.traffic_light|lower }}">{{ r.traffic_light }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9">Nessun segnale disponibile. Carica almeno un CSV.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</body>
+</html>
